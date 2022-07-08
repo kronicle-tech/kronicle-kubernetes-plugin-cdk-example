@@ -1,0 +1,28 @@
+{
+  "name": "api-lambda-crud-dynamodb",
+  "version": "1.0.0",
+  "description": "An example AWS EKS Kubernetes cluster that is used to demo Kronicle's Kubernetes plugin",
+  "private": true,
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "cdk": "cdk",
+    "deploy": "tsc && cdk deploy",
+    "destroy": "tsc && cdk destroy"
+  },
+  "author": {
+    "name": "Kronicle Project",
+    "url": "https://kronicle.tech"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "*",
+    "aws-cdk": "*",
+    "esbuild": "*",
+    "typescript": "~3.9.7"
+  },
+  "dependencies": {
+    "aws-cdk-lib": "^2.0.0",
+    "constructs": "^10.0.0"
+  }
+}

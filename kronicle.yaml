@@ -1,0 +1,18 @@
+# This file is read automatically by Kronicle https://kronicle.tech
+
+components:
+  - id: kubernetes-example
+    name: Kubernetes Example
+    typeId: microservice
+    repo:
+      url: https://github.com/simondean/kronicle-aws-plugin-cdk-example.git
+    description: |
+      An example AWS EKS Kubernetes cluster that is used to demo Kronicle's Kubernetes plugin
+    tags:
+      - backend
+    teams:
+      - teamId: kronicle-project
+    platform: aws-eks
+    responsibilities:
+      - description: |
+          An EKS cluster that hosts an example Kubernetes pod 
