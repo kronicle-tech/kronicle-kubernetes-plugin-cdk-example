@@ -23,14 +23,16 @@ export class EksExampleStack extends cdk.Stack {
   private createEksCluster() {
     this.eksCluster = new eks.Cluster(this, 'EksCluster', {
       vpc: this.vpc,
-      version: eks.KubernetesVersion.V1_22,
+      version: eks.KubernetesVersion.V1_21,
       clusterName: 'kronicle-kubernetes-plugin-example',
       vpcSubnets: [
         {
           subnetType: ec2.SubnetType.PUBLIC,
           onePerAz: true,
         }
-      ]
+      ],
+      defaultCapacity: 1,
+      defaultCapacityInstance: ec2.InstanceType.of(ec2.InstanceClass.T4G, ec2.InstanceSize.SMALL),
     });
   }
 
