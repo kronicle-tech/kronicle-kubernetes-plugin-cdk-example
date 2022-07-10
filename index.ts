@@ -1,4 +1,5 @@
 import * as cdk from 'aws-cdk-lib';
+import * as iam from 'aws-cdk-lib/aws-iam';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as eks from 'aws-cdk-lib/aws-eks';
 
@@ -11,6 +12,7 @@ export class EksExampleStack extends cdk.Stack {
 
     this.createVpc();
     this.createEksCluster();
+    this.grantEksClusterAccess();
     this.applyHelmChart();
   }
 
@@ -24,7 +26,7 @@ export class EksExampleStack extends cdk.Stack {
     this.eksCluster = new eks.Cluster(this, 'EksCluster', {
       vpc: this.vpc,
       version: eks.KubernetesVersion.V1_21,
-      clusterName: 'kronicle-kubernetes-plugin-example',
+      clusterName: 'example-eks',
       vpcSubnets: [
         {
           subnetType: ec2.SubnetType.PUBLIC,
@@ -33,7 +35,56 @@ export class EksExampleStack extends cdk.Stack {
       ],
       defaultCapacity: 1,
       defaultCapacityInstance: ec2.InstanceType.of(ec2.InstanceClass.T4G, ec2.InstanceSize.SMALL),
+      endpointAccess: eks.EndpointAccess.PUBLIC_AND_PRIVATE,
     });
+    const kronicleServiceSecurityGroup = ec2.SecurityGroup.fromSecurityGroupId(this, 'KronicleServiceSecurityGroup', 'sg-0883304a22bc5c867');
+    this.eksCluster.clusterSecurityGroup.addIngressRule(kronicleServiceSecurityGroup, ec2.Port.tcp(443));
+  }
+
+  private grantEksClusterAccess() {
+    this.eksCluster.addManifest('ApiReadOnlyClusterRole', {
+      apiVersion: 'rbac.authorization.k8s.io/v1',
+      kind: 'ClusterRole',
+      metadata: {
+        name: 'api-read-only',
+      },
+      rules: [
+        {
+          apiGroups: ['*'],
+          resources: ['*'],
+          verbs: ['get', 'list'],
+        }
+      ]
+    });
+    this.eksCluster.addManifest('ApiReadOnlyRoleBinding', {
+      apiVersion: 'rbac.authorization.k8s.io/v1',
+      kind: 'RoleBinding',
+      metadata: {
+        name: 'api-read-only-binding',
+      },
+      subjects: [
+        {
+          kind: 'User',
+          name: 'kronicle-service',
+          apiGroup: 'rbac.authorization.k8s.io',
+        },
+      ],
+      roleRef: {
+        kind: 'ClusterRole',
+        name: 'api-read-only',
+        apiGroup: 'rbac.authorization.k8s.io',
+      }
+    });
+    const awsAuth = new eks.AwsAuth(this, 'EksClusterAwsAuth', {
+      cluster: this.eksCluster,
+    });
+    awsAuth.addAccount(this.account);
+    const kronicleServiceRoleName = 'KronicleStack-KronicleTaskDefinitionTaskRoleCBE6C8-1HLFM69DYGCG6';
+    const kronicleServiceRole = iam.Role.fromRoleName(this, 'KronicleServiceRole', kronicleServiceRoleName);
+    awsAuth.addRoleMapping(kronicleServiceRole, {
+      username: 'kronicle-service',
+      groups: ['api-read-only'],
+    })
   }
 
   private applyHelmChart() {
