@@ -58,7 +58,7 @@ export class EksExampleStack extends cdk.Stack {
     });
     this.eksCluster.addManifest('ApiReadOnlyRoleBinding', {
       apiVersion: 'rbac.authorization.k8s.io/v1',
-      kind: 'RoleBinding',
+      kind: 'ClusterRoleBinding',
       metadata: {
         name: 'api-read-only-binding',
       },
