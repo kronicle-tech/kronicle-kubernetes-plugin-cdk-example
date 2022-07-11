@@ -10,13 +10,13 @@ export class EksExampleStack extends cdk.Stack {
   constructor(app: cdk.App, id: string, props?: cdk.StackProps) {
     super(app, id, props);
 
-    this.createVpc();
+    this.lookupVpc();
     this.createEksCluster();
     this.grantEksClusterAccess();
     this.applyHelmChart();
   }
 
-  private createVpc() {
+  private lookupVpc() {
     this.vpc = ec2.Vpc.fromLookup(this, "Vpc", {
       vpcName: "kronicle",
     });
@@ -37,7 +37,7 @@ export class EksExampleStack extends cdk.Stack {
       defaultCapacityInstance: ec2.InstanceType.of(ec2.InstanceClass.T4G, ec2.InstanceSize.SMALL),
       endpointAccess: eks.EndpointAccess.PUBLIC_AND_PRIVATE,
     });
-    const kronicleServiceSecurityGroup = ec2.SecurityGroup.fromSecurityGroupId(this, 'KronicleServiceSecurityGroup', 'sg-0883304a22bc5c867');
+    const kronicleServiceSecurityGroup = ec2.SecurityGroup.fromSecurityGroupId(this, 'KronicleServiceSecurityGroup', 'sg-01a788e9762fe2a1e');
     this.eksCluster.clusterSecurityGroup.addIngressRule(kronicleServiceSecurityGroup, ec2.Port.tcp(443));
   }
 
@@ -79,7 +79,7 @@ export class EksExampleStack extends cdk.Stack {
       cluster: this.eksCluster,
     });
     awsAuth.addAccount(this.account);
-    const kronicleServiceRoleName = 'KronicleStack-KronicleTaskDefinitionTaskRoleCBE6C8-1HLFM69DYGCG6';
+    const kronicleServiceRoleName = 'KronicleStack-KronicleTaskDefinitionTaskRoleCBE6C8-1SR6QRA1JM9NB';
     const kronicleServiceRole = iam.Role.fromRoleName(this, 'KronicleServiceRole', kronicleServiceRoleName);
     awsAuth.addRoleMapping(kronicleServiceRole, {
       username: 'kronicle-service',
