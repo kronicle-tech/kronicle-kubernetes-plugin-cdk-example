@@ -65,7 +65,7 @@ export class EksExampleStack extends cdk.Stack {
       subjects: [
         {
           kind: 'User',
-          name: 'kubernetes-api-read-only',
+          name: 'kronicle-service',
           apiGroup: 'rbac.authorization.k8s.io',
         },
       ],
@@ -82,7 +82,7 @@ export class EksExampleStack extends cdk.Stack {
     const kronicleServiceRole = iam.Role.fromRoleName(this, 'KronicleServiceRole', 'KronicleStack-KronicleTaskDefinitionTaskRoleCBE6C8-1SR6QRA1JM9NB')
     awsAuth.addRoleMapping(kronicleServiceRole, {
       username: 'kronicle-service',
-      groups: ['system:discovery', 'api-read-only'],
+      groups: ['system:discovery'],
     })
   }
 
