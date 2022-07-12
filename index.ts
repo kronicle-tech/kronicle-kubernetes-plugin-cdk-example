@@ -79,21 +79,9 @@ export class EksExampleStack extends cdk.Stack {
       cluster: this.eksCluster,
     });
     awsAuth.addAccount(this.account);
-    const kubernetesApiReadOnlyRole = new iam.Role(this, 'KubernetesApiReadOnlyRole', {
-      assumedBy: new iam.ServicePrincipal("ecs-tasks.amazonaws.com"),
-      inlinePolicies: {
-        kubernetesApi: new iam.PolicyDocument({
-          statements: [new iam.PolicyStatement({
-            actions: [
-              'eks:AccessKubernetesApi',
-            ],
-            resources: [this.eksCluster.clusterArn],
-          })],
-        })
-      }
-    });
-    awsAuth.addRoleMapping(kubernetesApiReadOnlyRole, {
-      username: 'kubernetes-api-read-only',
+    const kronicleServiceRole = iam.Role.fromRoleName(this, 'KronicleServiceRole', 'KronicleStack-KronicleTaskDefinitionTaskRoleCBE6C8-1SR6QRA1JM9NB')
+    awsAuth.addRoleMapping(kronicleServiceRole, {
+      username: 'kronicle-service',
       groups: ['system:discovery', 'api-read-only'],
     })
   }
